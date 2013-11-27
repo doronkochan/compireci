@@ -4,3 +4,13 @@ _bol1 {
 	100kg caca
 	100kg marco
 } melanger(duree=10m ,type=Fouet)
+_bol2 {
+	100.5g farine
+	3 bananes
+	100kg caca
+	100kg marco
+} melanger(duree=10m ,type=Fouet)
+_bol3 {
+    _bol1
+    _bol2
+} melanger()

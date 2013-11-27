@@ -92,10 +92,13 @@ class Node:
             return graph    
         
 class InstructionsNode(Node):
-    type = 'Program'
+    type = 'Instructions'
 
 class InstructionNode(Node):
-    type= 'Instruction'
+    type = 'Instruction'
+        
+class InstructionBodyNode(Node):
+    type = 'InstructionBody'
         
 class TokenNode(Node):
     type = 'token'
@@ -106,8 +109,20 @@ class TokenNode(Node):
     def __repr__(self):
         return repr(self.tok)
     
-class AssignNode(Node):
-    type = '='
+class MethodArgumentNode(Node):
+    type = 'MethodArgument'
+
+class QuantityNode(Node):
+    type = 'Quantity'
+
+class IngredientNode(Node):
+    type = 'Ingredient'
+
+class MethodNode(Node):
+    type = 'Method'
+
+class MethodParametersNode(Node):
+    type = 'MethodParameters'
 
 class EntryNode(Node):
     type = 'ENTRY'

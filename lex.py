@@ -17,7 +17,7 @@ literals = '()=,{}\t'
 units = ['jour','h','m','s',
 	'kg','g','mg','l','dl','cl','ml','pincee','cas','cac']
 
-qty_pattern = r'\d+(' + "|".join(units) + ')?(?!\w)'
+qty_pattern = r'\d(\.?\d*)+(' + "|".join(units) + ')?(?!\w)'
 
 t_ignore = ' '
 
