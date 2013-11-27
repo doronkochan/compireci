@@ -15,7 +15,7 @@ tokens = (
 literals = '()=,{}\t'
 
 units = ['jour','h','m','s',
-	'kg','g','mg','l','dl','cl','ml','pincee','cas','cac']
+	'kg','g','mg','l','dl','cl','ml','pincee','cas','cac','peu']
 
 qty_pattern = r'\d(\.?\d*)+(' + "|".join(units) + ')?(?!\w)'
 
