@@ -26,12 +26,12 @@ def p_instructionbody(p):
         p[0] = AST.InstructionBodyNode(p[1])
 
 def p_instructionbody_variable(p):
-    ''' instructionbody : VARIABLE
-        | VARIABLE instructionbody '''
-    if (len(p) > 2):
-        p[0] = AST.InstructionBodyNode([AST.TokenNode(p[1])] + p[2].children)
+    ''' instructionbody : TAB VARIABLE
+        | TAB VARIABLE instructionbody '''
+    if (len(p) > 3):
+        p[0] = AST.InstructionBodyNode([AST.TokenNode(p[2])] + p[3].children)
     else:
-        p[0] = AST.InstructionBodyNode(AST.TokenNode(p[1]))
+        p[0] = AST.InstructionBodyNode(AST.TokenNode(p[2]))
 
 def p_ingredient(p):
     ''' ingredient : TAB QUANTITY TEXT '''
