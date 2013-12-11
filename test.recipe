@@ -1,16 +1,14 @@
 _bol1 {
 	100g farine
 	3 bananes
-	100kg caca
-	100kg marco
 } melanger(duree=10m ,type=Fouet)
+
 _bol2 {
-	100.5g farine
-	3 bananes
-	100kg caca
-	100kg marco
+	_bol1
+	3g sucre
 } melanger(duree=10m ,type=Fouet)
-_bol3 {
-    _bol1
-    _bol2
-} melanger()
+
+_res {
+	_bol1
+	400ml creme
+} cuire(type=Four, temperature=100s)
