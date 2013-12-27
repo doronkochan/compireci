@@ -1,6 +1,7 @@
 import AST
 from lex import time_units
 from AST import addToClass
+from semantic_rules import actions, parameters, parameter_dependencies
 
 #Tools
 semantically_correct = True
@@ -8,39 +9,9 @@ semantically_correct = True
 #CONSTANTS
 INGREDIENTS_NB_MAX = 10
 
-actions = {
-    'melanger': {
-        'min-ingredients': 2,
-        'max-ingredients': 3,
-        'parameters-allowed': ['duree', 'type_melanger'],
-        'parameters-required': ['type_melanger', 'duree']
-    },
-    'cuire': {
-        'parameters-allowed': ['duree','type_cuire']
-    }
-}
-
-parameters = {
-    #'duree' : {
-    #    'format': r'\d(\.?\d*)+(' + "|".join(time_units) + ')?(?!\w)'
-    #},
-    'type_cuire' : {
-        #'name': 'type',
-        'values-allowed': ['Four', 'Grill']
-    },
-    'type_melanger' : {
-        #'name': 'type',
-        'values-allowed': ['Fouet', 'Mixer']
-    }
-}
-
 @addToClass(AST.InstructionsNode)
 def verify(self):
     for instruction in self.children:
-        # Result-ingredient recursion prevention (an ingredient has the same name as the resultant variable name)
-        #for c in instruction.children:
-        #    if isinstance(c, AST.TokenNode): # The ingredient is a variable
-        #        if 
         instruction.verify()
 
 @addToClass(AST.InstructionNode)
@@ -53,7 +24,7 @@ def verify(self):
 
     ### Instructionbody
     #1 Number of ingredients according to method
-    nb_ingredients = len(ingredient_list) # second child is the ingredients node
+    nb_ingredients = len(ingredient_list)
     method_name = str(method_node.children[0].tok) # 3rd child->1st child = method->methodname
 
     min_nb_ingredients = 0
@@ -85,11 +56,13 @@ def verify(self):
     method_parameters_list = method_node.children[1].children
     
     parameter_gathered_list = []
+    parameter_value_gathered_list = []
     #6 Parameters allowed check
 
     for c in method_parameters_list:
         parameters_allowed = actions[method_name]['parameters-allowed']
         parameter_name = c.children[0].tok
+        parameter_value = c.children[1].tok
 
         #10 Repetition check
         if (parameter_name in parameter_gathered_list):
@@ -98,6 +71,9 @@ def verify(self):
 
         #Gather all the parameters to check if the required parameters are all present (#7, done later)
         parameter_gathered_list.append(parameter_name)
+
+        #Gather values of parameters. Used by #9 to check dependencies
+        parameter_value_gathered_list.append(parameter_value)
 
 
         #Check if the parameter is allowed
@@ -108,7 +84,11 @@ def verify(self):
             sem_error(method_name + '[' + result_variable_name + ']' + ' : ' + parameter_name + ' is not in the allowed parameters list')
 
     #7 Parameters required check
-    parameters_required = actions[method_name]['parameters-required']
+    parameters_required = []
+    try:
+        parameters_required = actions[method_name]['parameters-required']
+    except KeyError:
+        pass
 
     parameters_missing = []
     for p in parameters_required:
@@ -141,6 +121,33 @@ def verify(self):
             #Regex with format field in parameters ?
             ):
             sem_error(method_name + '[' + result_variable_name + ']' + ' : '+'parameter ' + p + ' can\'t have value ' + v)
+
+    #9 Parameter dependencies
+    method_deps = []
+    try :
+        method_deps = parameter_dependencies[method_name]
+    except KeyError:
+        pass
+
+    if (method_deps is not None):
+        for d in method_deps:
+            if (isinstance(d,list)):
+                for e in d:
+                    if (e in parameter_gathered_list or e in parameter_value_gathered_list):
+                        all_v_p = set(parameter_value_gathered_list + parameter_gathered_list)
+                        if (set(d).issubset(set(all_v_p)) is False):
+                            sem_error(method_name + '[' + result_variable_name + ']' +
+                                ' : ' + 'parameter or value ' + e + ' should be together with ' +
+                                " and ".join(list(set(d)-set([e]))))
+                            continue
+            else:
+                if (d in parameter_gathered_list or d in parameter_value_gathered_list):
+                    all_v_p = set(parameter_value_gathered_list + parameter_gathered_list)
+                    if (set(method_deps).issubset(set(all_v_p)) is False):
+                        sem_error(method_name + '[' + result_variable_name + ']' +
+                            ' : ' + 'parameter or value ' + d + ' should be together with ' +
+                            " and ".join(list(set(method_deps)-set([d]))))
+                        break
 
 def sem_error(message):
     print(message)

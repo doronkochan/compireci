@@ -2,3 +2,4 @@
 parser.out
 generated/
 *.pdf
+*.DS_Store
