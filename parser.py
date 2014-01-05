@@ -11,7 +11,7 @@ def p_instructions(p):
     if (len(p) > 2):
         p[0] = AST.InstructionsNode(p[1].children + [p[2]])
     else:
-        p[0] = AST.InstructionNode(p[1])
+        p[0] = AST.InstructionsNode(p[1])
 
 def p_instruction(p):
     ''' instruction : VARIABLE '{' instructionbody '}' method '''
@@ -77,13 +77,16 @@ if __name__ == "__main__":
 
     prog = open(sys.argv[1]).read()
     result = yacc.parse(prog,debug=1)
+
     if result:
         print (result)
+    #if result:
+        #print (result)
 
-        import os
-        graph = result.makegraphicaltree()
-        name = os.path.splitext(sys.argv[1])[0]+'-ast.pdf'
-        graph.write_pdf(name) 
-        print ("wrote ast to", name)
-    else:
-        print ("Parsing returned no result!")
+        #import os
+        #graph = result.makegraphicaltree()
+        #name = os.path.splitext(sys.argv[1])[0]+'-ast.pdf'
+        #graph.write_pdf(name) 
+        #print ("wrote ast to", name)
+    #else:
+        #print ("Parsing returned no result!")
