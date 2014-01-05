@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "Mandingo";
+  src: url(./MANDINGO.TTF);
+}
+
+text
+{
+    font-family: "Mandingo";
+}
+
+rect
+{
+    stroke: #006600;
+    fill:   #00cc00;
+}
