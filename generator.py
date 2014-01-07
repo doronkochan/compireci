@@ -55,16 +55,25 @@ def generate(self):
     group = Node.dwg.g()
 
     outerWidths = []
+    incredients = []
     for child in self.children:
-        group.add(child.generate())
+        incredients.append(child.generate())
         Node.yPos = Node.yPos + Node.outerHeight
         outerWidths.append(Node.outerWidth)
 
     Node.outerHeight = Node.yPos - parentY
     Node.outerWidth = max(outerWidths)
     
-    Node.yPos = parentY
+    rectNode = Node.dwg.rect(
+        insert=(Node.xPos, parentY),
+        size = ("%spx"%(Node.outerWidth), "%spx"%(Node.outerHeight)))
     
+    group.add(rectNode)
+    for incredient in incredients:
+        group.add(incredient)
+    
+    
+    Node.yPos = parentY
     return group
 
 @addToClass(AST.MethodArgumentNode)
@@ -79,8 +88,8 @@ def generate(self):
 
 @addToClass(AST.IngredientNode)
 def generate(self):
-    topBottomMargin = 20
-    leftRightMargin = 60
+    topBottomMargin = 5
+    leftRightMargin = 10
     fontHeight = 20
     
     text = self.children[0].children[0].tok + " " + self.children[1].tok;
@@ -95,12 +104,12 @@ def generate(self):
     # the ingredient is  a leaf node --> set outerHeight and outerWidth
     Node.outerWidth = textSize[0] + 2 * leftRightMargin;
     Node.outerHeight = textSize[1] + 2 * topBottomMargin;
-
+    
     return textNode
 
 @addToClass(AST.MethodNode)
 def generate(self):
-    topBottomMargin = 10
+    topBottomMargin = 5
     leftRightMargin = 10
     fontHeight = 20
     
@@ -131,24 +140,23 @@ def generate(self):
     print("MethodParametersNode:")
     pass
 
-@addToClass(AST.EntryNode)
-def generate(self):
-    print("EntryNode:")
-    pass
-
 @addToClass(AST.TokenNode)
 def generate(self):
-    topBottomMargin = 10
+    topBottomMargin = 5
     leftRightMargin = 10
     fontHeight = 20
     
+    text = self.tok
+    textSize = text_size(text, fontHeight);
+    
     textNode = Node.dwg.text(
-        self.tok,
-        insert=(Node.xPos, Node.yPos + fontHeight),
+        text,
+        insert=(Node.xPos + leftRightMargin, Node.yPos + topBottomMargin + fontHeight),
         font_size='%spx' % fontHeight)
     
-    Node.outerHeight = fontHeight + 2 * topBottomMargin;
-
+    Node.outerWidth = textSize[0] + 2 * leftRightMargin;
+    Node.outerHeight = textSize[1] + 2 * topBottomMargin;
+    
     return textNode
     
 def text_size(text, font_size):
