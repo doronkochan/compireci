@@ -8,9 +8,9 @@ import svgwrite
 @addToClass(AST.InstructionsNode)
 def generate(self):
     spacing = 50
-    leftMargin = 20
+    left = 20
     
-    Node.xPos = Node.xPos + leftMargin
+    Node.xPos = Node.xPos + left
     
     group = Node.dwg.g()
     for child in self.children:
@@ -20,118 +20,113 @@ def generate(self):
 
 @addToClass(AST.InstructionNode)
 def generate(self):
-    parentX = Node.xPos
-    parentY = Node.yPos
+    par_x = Node.xPos
+    par_y = Node.yPos
     group = Node.dwg.g()
     
     # create instruction body
-    instructionBodyNode = self.children[1].generate()
-    group.add(instructionBodyNode)
-    instructionBodyHeight = Node.outerHeight
-    instructionBodyWitdth = Node.outerWidth
+    instr_body_node = self.children[1].generate()
+    group.add(instr_body_node)
+    instr_body_size = (Node.outerWidth, Node.outerHeight)
     
     # create methode field
-    Node.xPos = Node.xPos + instructionBodyWitdth
-    methodNode = self.children[2].generate()
-    group.add(methodNode)
-    methodHeight = Node.outerHeight
-    methodWitdth = Node.outerWidth
+    Node.xPos = Node.xPos + instr_body_size[0]
+    action_node = self.children[2].generate()
+    group.add(action_node)
+    action_size = (Node.outerWidth, Node.outerHeight)
     
     # create returning field
-    Node.xPos = Node.xPos + methodWitdth
-    returingNode = self.children[0].generate()
-    returningHeight = Node.outerHeight
-    group.add(returingNode)
+    Node.xPos = Node.xPos + action_size[0]
+    ret_node = self.children[0].generate()
+    ret_size = (Node.outerWidth, Node.outerHeight)
+    group.add(ret_node)
     
-    maxHeight = max(instructionBodyHeight, methodHeight, returningHeight)
+    maxHeight = max(instr_body_size[1], action_size[1], ret_size[1])
     
-    instructionBodyNode.translate(tx=0, ty=(maxHeight - instructionBodyHeight)/2 )
-    methodNode.translate(tx=0, ty=(maxHeight - methodHeight)/2 )
-    returingNode.translate(tx=0, ty=(maxHeight - returningHeight)/2 )
+    instr_body_node.translate(tx=0, ty=(maxHeight - instr_body_size[1])/2 )
+    action_node.translate(tx=0, ty=(maxHeight - action_size[1])/2 )
+    ret_node.translate(tx=0, ty=(maxHeight - ret_size[1])/2 )
     
     Node.outerHeight = maxHeight
-    Node.xPos = parentX
-    Node.yPos = parentY
+    Node.xPos = par_x
+    Node.yPos = par_y
     
     return group
 
 @addToClass(AST.InstructionBodyNode)
 def generate(self):
-    parentY = Node.yPos
+    par_y = Node.yPos
     group = Node.dwg.g()
 
-    outerWidths = []
+    widths = []
     incredients = []
     for child in self.children:
         incredients.append(child.generate())
         Node.yPos = Node.yPos + Node.outerHeight
-        outerWidths.append(Node.outerWidth)
+        widths.append(Node.outerWidth)
 
-    Node.outerHeight = Node.yPos - parentY
-    Node.outerWidth = max(outerWidths)
+    Node.outerHeight = Node.yPos - par_y
+    Node.outerWidth = max(widths)
     
-    rectNode = Node.dwg.rect(
-        insert=(Node.xPos, parentY),
+    rect_node = Node.dwg.rect(
+        insert=(Node.xPos, par_y),
         size = ("%spx"%(Node.outerWidth), "%spx"%(Node.outerHeight)))
     
-    group.add(rectNode)
+    group.add(rect_node)
+    
     for incredient in incredients:
         group.add(incredient)
     
     
-    Node.yPos = parentY
+    Node.yPos = par_y
     return group
-
-@addToClass(AST.QuantityNode)
-def generate(self):
-    print("QuantityNode:")
-    pass
 
 @addToClass(AST.IngredientNode)
 def generate(self):
-    topBottomMargin = 5
-    leftRightMargin = 10
-    fontHeight = 20
+    top_bottom = 5
+    left_right = 10
+    font_height = 20
     
-    text = self.children[0].children[0].tok + " " + self.children[1].tok;
-    textSize = text_size(text, fontHeight);
+    txt = self.children[0].children[0].tok + " " + self.children[1].tok;
     
-    textNode = Node.dwg.text(
-        text,
-        insert=(Node.xPos + leftRightMargin, Node.yPos + topBottomMargin + fontHeight ),
-        font_size='%spx' % fontHeight)
+    (txt_node, txt_size) = create_text_node(
+        txt,
+        font_height,
+        Node.xPos + left_right,
+        Node.yPos + top_bottom
+    )
+    
     
     
     # the ingredient is  a leaf node --> set outerHeight and outerWidth
-    Node.outerWidth = textSize[0] + 2 * leftRightMargin;
-    Node.outerHeight = textSize[1] + 2 * topBottomMargin;
+    Node.outerWidth = txt_size[0] + 2 * left_right;
+    Node.outerHeight = txt_size[1] + 2 * top_bottom;
     
-    return textNode
+    return txt_node
 
 @addToClass(AST.MethodNode)
 def generate(self):
-    parentX = Node.xPos
-    parentY = Node.yPos
+    par_x = Node.xPos
+    par_y = Node.yPos
     
-    topBottomMargin = 0
-    leftRightMargin = 20
-    fontHeight = 20
+    top_bottom = 0
+    left_right = 20
+    font_height = 20
     
     group = Node.dwg.g()
     
+    Node.yPos = Node.yPos + top_bottom
+    Node.xPos = Node.xPos + left_right
+    
     txt = self.children[0].tok
-    txt_size = text_size(txt, fontHeight);
-    
-    Node.yPos = Node.yPos + topBottomMargin
-    Node.xPos = Node.xPos + leftRightMargin
-    
-    txt_node = Node.dwg.text(
+    (txt_node, txt_size) = create_text_node(
         txt,
-        insert=(Node.xPos, Node.yPos + fontHeight),
-        font_size='%spx' % fontHeight)
+        font_height,
+        Node.xPos,
+        Node.yPos
+    )   
         
-        
-    Node.yPos = Node.yPos + fontHeight
+    Node.yPos = Node.yPos + txt_size[1]
         
     param_node = self.children[1].generate(txt)
     param_size = (Node.outerWidth, Node.outerHeight)
@@ -148,21 +143,21 @@ def generate(self):
         insert=(Node.xPos, Node.yPos-txt_size[1]),
         size = ("%spx"%(size[0]), "%spx"%(size[1]+txt_size[1])))
 
-    Node.outerWidth = size[0] + 2 * leftRightMargin;
-    Node.outerHeight = size[1] + 2 * topBottomMargin;
+    Node.outerWidth = size[0] + 2 * left_right;
+    Node.outerHeight = size[1] + 2 * top_bottom;
     
     group.add(rect_node)
     group.add(txt_node)
     group.add(param_node)
     
-    Node.xPos = parentX
-    Node.yPos = parentY
+    Node.xPos = par_x
+    Node.yPos = par_y
     
     return group
 
 @addToClass(AST.MethodParametersNode)
 def generate(self, method):
-    parentY = Node.yPos
+    par_y = Node.yPos
     
     group = Node.dwg.g()
     
@@ -172,10 +167,10 @@ def generate(self, method):
         Node.yPos = Node.yPos + Node.outerHeight
         widths.append(Node.outerWidth)
     
-    Node.outerHeight = Node.yPos - parentY
+    Node.outerHeight = Node.yPos - par_y
     Node.outerWidth = max(widths);
     
-    Node.yPos = parentY
+    Node.yPos = par_y
     return group
 
 @addToClass(AST.MethodArgumentNode)
@@ -230,22 +225,22 @@ def create_img_node(img, pos_x, pos_y):
 
 @addToClass(AST.TokenNode)
 def generate(self):
-    topBottomMargin = 5
-    leftRightMargin = 10
-    fontHeight = 20
+    top_bottom = 5
+    left_right = 10
+    font_height = 20
     
-    text = self.tok
-    textSize = text_size(text, fontHeight);
+    txt = self.tok
+    (txt_node, txt_size) = create_text_node(
+        txt,
+        font_height,
+        Node.xPos + left_right,
+        Node.yPos + top_bottom
+    )
     
-    textNode = Node.dwg.text(
-        text,
-        insert=(Node.xPos + leftRightMargin, Node.yPos + topBottomMargin + fontHeight),
-        font_size='%spx' % fontHeight)
+    Node.outerWidth = txt_size[0] + 2 * left_right;
+    Node.outerHeight = txt_size[1] + 2 * top_bottom;
     
-    Node.outerWidth = textSize[0] + 2 * leftRightMargin;
-    Node.outerHeight = textSize[1] + 2 * topBottomMargin;
-    
-    return textNode
+    return txt_node
     
 def text_size(text, font_size):
     from PIL import ImageFont
