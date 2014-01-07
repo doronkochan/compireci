@@ -1,6 +1,7 @@
 import sys
 import AST
 from AST import addToClass, Node
+from semantic_rules import parameter_image
 import svgwrite
 
 
@@ -81,11 +82,6 @@ def generate(self):
     Node.yPos = parentY
     return group
 
-@addToClass(AST.MethodArgumentNode)
-def generate(self):
-    print("MethodArgumentNode:")
-    pass
-
 @addToClass(AST.QuantityNode)
 def generate(self):
     print("QuantityNode:")
@@ -114,36 +110,123 @@ def generate(self):
 
 @addToClass(AST.MethodNode)
 def generate(self):
-    topBottomMargin = 5
-    leftRightMargin = 10
+    parentX = Node.xPos
+    parentY = Node.yPos
+    
+    topBottomMargin = 0
+    leftRightMargin = 20
     fontHeight = 20
     
     group = Node.dwg.g()
     
-    text = self.children[0].tok
-    textSize = text_size(text, fontHeight);
+    txt = self.children[0].tok
+    txt_size = text_size(txt, fontHeight);
     
-    rectNode = Node.dwg.rect(
-        insert=(Node.xPos + leftRightMargin, Node.yPos + topBottomMargin ),
-        size = ("%spx"%(textSize[0]), "%spx"%(textSize[1])))
+    Node.yPos = Node.yPos + topBottomMargin
+    Node.xPos = Node.xPos + leftRightMargin
     
-    textNode = Node.dwg.text(
-        text,
-        insert=(Node.xPos + leftRightMargin, Node.yPos + topBottomMargin + fontHeight),
+    txt_node = Node.dwg.text(
+        txt,
+        insert=(Node.xPos, Node.yPos + fontHeight),
         font_size='%spx' % fontHeight)
-
-    Node.outerWidth = textSize[0] + 2 * leftRightMargin;
-    Node.outerHeight = textSize[1] + 2 * topBottomMargin;
+        
+        
+    Node.yPos = Node.yPos + fontHeight
+        
+    param_node = self.children[1].generate(txt)
+    param_size = (Node.outerWidth, Node.outerHeight)
     
-    group.add(rectNode)
-    group.add(textNode)
+    size = (
+        max(param_size[0], txt_size[0]),
+        max(param_size[1], txt_size[1])
+    )
+    
+    txt_node.translate(tx=(size[0] - txt_size[0])/2, ty=0)
+    param_node.translate(tx=(size[0] - param_size[0])/2, ty=0)
 
+    rect_node = Node.dwg.rect(
+        insert=(Node.xPos, Node.yPos-txt_size[1]),
+        size = ("%spx"%(size[0]), "%spx"%(size[1]+txt_size[1])))
+
+    Node.outerWidth = size[0] + 2 * leftRightMargin;
+    Node.outerHeight = size[1] + 2 * topBottomMargin;
+    
+    group.add(rect_node)
+    group.add(txt_node)
+    group.add(param_node)
+    
+    Node.xPos = parentX
+    Node.yPos = parentY
+    
     return group
 
 @addToClass(AST.MethodParametersNode)
-def generate(self):
-    print("MethodParametersNode:")
-    pass
+def generate(self, method):
+    parentY = Node.yPos
+    
+    group = Node.dwg.g()
+    
+    widths = []
+    for child in self.children:
+        group.add(child.generate(method))
+        Node.yPos = Node.yPos + Node.outerHeight
+        widths.append(Node.outerWidth)
+    
+    Node.outerHeight = Node.yPos - parentY
+    Node.outerWidth = max(widths);
+    
+    Node.yPos = parentY
+    return group
+
+@addToClass(AST.MethodArgumentNode)
+def generate(self, method):
+    group = Node.dwg.g()
+    font_height = 15
+    
+    par = self.children[0].tok
+    val = self.children[1].tok
+    par_img = parameter_image(method, par, val)
+    
+    if par_img is not None:
+        (img_node, img_size) = create_img_node(par_img[0], Node.xPos, Node.yPos)
+        group.add(img_node)
+        (Node.outerWidth, Node.outerHeight) = img_size
+        
+        if not par_img[1]:
+            pos_x = Node.xPos + img_size[0]
+            (txt_node, txt_size) = create_text_node(val, font_height, pos_x, Node.yPos)
+            group.add(txt_node)
+            
+            txt_node.translate(tx=0, ty=(Node.outerHeight - txt_size[1])/2 )
+            img_node.translate(tx=0, ty=(Node.outerHeight - img_size[1])/2 )
+            
+            Node.outerWidth = txt_size[0] + img_size[0]
+            Node.outerHeight = max(txt_size[1], img_size[1])
+    else:
+        txt = "%s %s"%(par, val)
+        (txt_node, txt_size) = create_text_node(txt, font_height, Node.xPos, Node.yPos)
+        group.add(txt_node)
+        (Node.outerWidth, Node.outerHeight) = txt_size
+    
+    return group
+
+def create_text_node(txt, font_height, pos_x, pos_y):
+    size = text_size(txt, font_height)
+    node = Node.dwg.text(
+        txt,
+        insert=(pos_x, pos_y+font_height),
+        font_size='%spx' % font_height
+    )
+    return (node, size)
+
+def create_img_node(img, pos_x, pos_y):
+    size = image_size(img)
+    node = Node.dwg.image(
+        img,
+        insert=(pos_x, pos_y),
+        size=size
+    )
+    return (node, size)
 
 @addToClass(AST.TokenNode)
 def generate(self):
@@ -169,6 +252,11 @@ def text_size(text, font_size):
     font = ImageFont.truetype("MANDINGO.TTF", font_size)
     size = font.getsize(text)
     return size
+
+def image_size(img_path):
+    from PIL import Image
+    im=Image.open(img_path)
+    return im.size
 
 if __name__ == "__main__":
         from parser import parse
