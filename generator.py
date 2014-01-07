@@ -6,10 +6,15 @@ import svgwrite
 
 @addToClass(AST.InstructionsNode)
 def generate(self):
+    spacing = 50
+    leftMargin = 20
+    
+    Node.xPos = Node.xPos + leftMargin
+    
     group = Node.dwg.g()
     for child in self.children:
         group.add(child.generate())
-        Node.yPos = Node.yPos + Node.outerHeight
+        Node.yPos = Node.yPos + Node.outerHeight + spacing
     return group
 
 @addToClass(AST.InstructionNode)
@@ -172,8 +177,8 @@ if __name__ == "__main__":
         ast = parse(prog)
         
         AST.Node.dwg = svgwrite.Drawing('test.svg', profile='tiny')
-        AST.Node.xPos = 0
-        AST.Node.yPos = 50
+        AST.Node.xPos = 20
+        AST.Node.yPos = 20
         AST.Node.outerHeight = 0;
         AST.Node.outerWidth = 0;
         AST.Node.dwg.add_stylesheet("style.css", "compireci stylesheet");
