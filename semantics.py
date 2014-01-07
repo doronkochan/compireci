@@ -117,7 +117,7 @@ def verify(self):
             param_name = p+'_'+method_name
         else: continue
 
-        if (v not in parameters[param_name]['values-allowed']
+        if (parameters[param_name]['value-index'](v) is None
             #Regex with format field in parameters ?
             ):
             sem_error(method_name + '[' + result_variable_name + ']' + ' : '+'parameter ' + p + ' can\'t have value ' + v)
