@@ -1,0 +1,15 @@
+_poele {
+	1 oignon
+} revenir()
+
+_principal {
+	250g risotto
+	1 bouillon
+	20ml vinblanc
+} cuire(type=Bouillir, conteneur=Casserole)
+
+_final {
+	3pincee safran
+	1pincee sel
+	1pincee poivre
+} assaisonner()

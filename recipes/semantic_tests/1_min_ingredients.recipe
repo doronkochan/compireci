@@ -1,0 +1,12 @@
+_bol {
+	4 oeufs
+} melanger(type=Fouet, duree=10m)
+
+_casserole {
+	200g chocolat
+} cuire(type=BainMarie)
+
+_moule {
+	_bol
+	_casserole
+} cuire(type=Four,temperature=200)

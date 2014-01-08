@@ -1,0 +1,15 @@
+_bol {
+	4 oeufs
+	140g sucre
+	100g farine
+	3cas levure
+} 
+
+_casserole {
+	200g chocolat
+} cuire(type=BainMarie)
+
+_moule {
+	_bol
+	_casserole
+} cuire(type=Four,temperature=200)
