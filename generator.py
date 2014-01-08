@@ -1,9 +1,11 @@
 import sys
+import math
 import AST
+from random import randrange
+import colorsys
 from AST import addToClass, Node
 from semantic_rules import parameter_image
 import svgwrite
-
 
 @addToClass(AST.InstructionsNode)
 def generate(self):
@@ -20,6 +22,7 @@ def generate(self):
 
 @addToClass(AST.InstructionNode)
 def generate(self):
+    arrow_length = 50
     par_x = Node.pos_x
     par_y = Node.pos_y
     group = Node.dwg.g()
@@ -29,22 +32,45 @@ def generate(self):
     group.add(instr_body_node)
     instr_body_size = (Node.outer_w, Node.outer_h)
     
-    # create methode field
+    # create first arrow
     Node.pos_x = Node.pos_x + instr_body_size[0]
+    (arr1_node, arr1_size) = create_arrow_node(
+        (Node.pos_x, Node.pos_y),
+        (Node.pos_x+arrow_length, Node.pos_y)
+    )
+    group.add(arr1_node),
+    
+    # create methode field]
+    Node.pos_x = Node.pos_x + arr1_size[0]
     action_node = self.children[2].generate()
     group.add(action_node)
     action_size = (Node.outer_w, Node.outer_h)
     
-    # create returning field
+    # create second arrow
     Node.pos_x = Node.pos_x + action_size[0]
+    (arr2_node, arr2_size) = create_arrow_node(
+        (Node.pos_x, Node.pos_y),
+        (Node.pos_x+arrow_length, Node.pos_y)
+    )
+    group.add(arr2_node),
+    
+    # create returning field
+    Node.pos_x = Node.pos_x + arr2_size[0]
     ret_node = self.children[0].generate()
     ret_size = (Node.outer_w, Node.outer_h)
     group.add(ret_node)
     
-    height_max = max(instr_body_size[1], action_size[1], ret_size[1])
+    height_max = max(
+        instr_body_size[1],
+        arr1_size[1],
+        action_size[1],
+        arr2_size[1],
+        ret_size[1])
     
     instr_body_node.translate(tx=0, ty=(height_max - instr_body_size[1])/2 )
+    arr1_node.translate(tx=0, ty=(height_max - arr1_size[1])/2 )
     action_node.translate(tx=0, ty=(height_max - action_size[1])/2 )
+    arr2_node.translate(tx=0, ty=(height_max - arr2_size[1])/2 )
     ret_node.translate(tx=0, ty=(height_max - ret_size[1])/2 )
     
     Node.outer_h = height_max
@@ -110,7 +136,7 @@ def generate(self):
     par_y = Node.pos_y
     
     top_bottom = 0
-    left_right = 20
+    left_right = 0
     font_height = 20
     
     group = Node.dwg.g()
@@ -216,13 +242,50 @@ def generate(self, method):
     
     return group
 
-def create_text_node(txt, font_height, pos_x, pos_y):
+@addToClass(AST.TokenNode)
+def generate(self):
+    top_bottom = 5
+    left_right = 10
+    font_height = 20
+    
+    txt = self.tok
+    color = var_color(txt)
+    (txt_node, txt_size) = create_text_node(
+        txt,
+        font_height,
+        Node.pos_x + left_right,
+        Node.pos_y + top_bottom,
+        color=color
+    )
+    
+    Node.outer_w = txt_size[0] + 2 * left_right
+    Node.outer_h = txt_size[1] + 2 * top_bottom
+    
+    return txt_node
+
+def var_color(var):
+    if var not in var_color.colors:
+        (h, l, s) = (randrange(360), randrange(50), randrange(100))
+        (h, l, s) = (float(h)/360, float(l)/100, float(s)/100)
+        (r, g, b) = colorsys.hls_to_rgb(h, l, s)
+        (r, g, b) = (r*255, g*255, b*255)
+        hex_color = '#%02x%02x%02x' % (r, g, b)
+        var_color.colors[var] = hex_color
+    return var_color.colors[var]
+    
+var_color.colors = {}
+
+def create_text_node(txt, font_height, pos_x, pos_y, color=None):
     size = text_size(txt, font_height)
     node = Node.dwg.text(
         txt,
         insert=(pos_x, pos_y+font_height),
         font_size='%spx' % font_height
     )
+    
+    if color!=None:
+        node.stroke(color)
+        
     return (node, size)
 
 def create_img_node(img, pos_x, pos_y):
@@ -234,24 +297,19 @@ def create_img_node(img, pos_x, pos_y):
     )
     return (node, size)
 
-@addToClass(AST.TokenNode)
-def generate(self):
-    top_bottom = 5
-    left_right = 10
-    font_height = 20
-    
-    txt = self.tok
-    (txt_node, txt_size) = create_text_node(
-        txt,
-        font_height,
-        Node.pos_x + left_right,
-        Node.pos_y + top_bottom
+def create_arrow_node(start, end):
+    marker = Node.dwg.marker(insert=(5,5), size=(10,10), orient='auto')
+    marker.add(
+        Node.dwg.polyline([(0,0),(10,5),(0,10),(1,5)], fill='black')
     )
+    Node.dwg.defs.add(marker)
     
-    Node.outer_w = txt_size[0] + 2 * left_right
-    Node.outer_h = txt_size[1] + 2 * top_bottom
+    line = Node.dwg.line(start, end, stroke='black', fill='none')
+    line.set_markers(marker)
+    line['marker-end'] = marker.get_funciri()
     
-    return txt_node
+    size = ( abs(end[0] - start[0])+5, abs(end[1] - start[1]) ) 
+    return (line, size)
     
 def text_size(text, font_size):
     from PIL import ImageFont
@@ -269,7 +327,7 @@ if __name__ == "__main__":
     prog = open(sys.argv[1]).read()
     ast = parse(prog)
     
-    AST.Node.dwg = svgwrite.Drawing('test.svg', profile='tiny')
+    AST.Node.dwg = svgwrite.Drawing('test.svg')
     AST.Node.pos_x = 20
     AST.Node.pos_y = 20
     AST.Node.outer_h = 0
