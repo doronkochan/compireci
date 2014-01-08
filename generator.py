@@ -137,7 +137,7 @@ def generate(self):
     
     top_bottom = 0
     left_right = 0
-    font_height = 20
+    font_height = 22
     
     group = Node.dwg.g()
     
@@ -202,7 +202,7 @@ def generate(self, method):
 @addToClass(AST.MethodArgumentNode)
 def generate(self, method):
     group = Node.dwg.g()
-    font_height = 15
+    font_height = 20
     
     par = self.children[0].tok
     val = self.children[1].tok
