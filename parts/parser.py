@@ -2,6 +2,7 @@ import ply.yacc as yacc
 
 from lex import tokens
 import AST
+import sys 
 
 vars = {}
 
@@ -72,21 +73,24 @@ def parse(program):
 
 yacc.yacc(outputdir='generated')
 
-if __name__ == "__main__":
-    import sys 
-
-    prog = open(sys.argv[1]).read()
-    result = yacc.parse(prog,debug=1)
+def analyse_syn(filename, treePdf, treeOut):
+    prog = open(filename).read()
+    result = yacc.parse(prog)
 
     if result:
-        print (result)
-    #if result:
-        #print (result)
+        if treeOut:
+            print (result)
+        if treePdf:
+            import os
+            graph = result.makegraphicaltree()
+            name = os.path.splitext(sys.argv[1])[0]+'-ast.pdf'
+            graph.write_pdf(name) 
+            print ("wrote ast to %s" % name)
+        return True
+    else:
+        print ("Parsing returned no result!")
+    
+    return False
 
-        #import os
-        #graph = result.makegraphicaltree()
-        #name = os.path.splitext(sys.argv[1])[0]+'-ast.pdf'
-        #graph.write_pdf(name) 
-        #print ("wrote ast to", name)
-    #else:
-        #print ("Parsing returned no result!")
+if __name__ == "__main__":
+    analyse_syn(sys.argv[1], True, True)

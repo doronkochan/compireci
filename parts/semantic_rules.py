@@ -57,28 +57,42 @@ parameters = {
 #   }
     'conteneur' : {
         'value-index': lambda v: enum_value_index( ['Moule', 'Casserole', 'Plat'], v),
+        'images': [
+            None,
+            None,
+        ],
+        'image-complete': [
+            False,
+            False
+        ]
     },
 
     'type_cuire' : {
         'value-index': lambda v: enum_value_index( ['Four', 'Grill', 'BainMarie', 'Bouillir'], v),
         'images': [
             'four.png',
-            'grill.png'
+            'grill.png',
+            None,
+            None
         ],
         'image-complete': [
             True,
-            True
+            True,
+            False,
+            False
         ]
     },
     'type_melanger' : {
         'value-index': lambda v: enum_value_index( ['Fouet', 'Mixer', 'Main'], v),
         'images': [
             'fouet.png',
-            'mixer.png' 
+            'mixer.png',
+            None
         ],
         'image-complete': [
             True,
-            True
+            True,
+            False
         ]
     },
     'duree' : {
@@ -102,11 +116,14 @@ def enum_value_index(enum, v):
     return None
 
 def parameter_image(method, parameter, value):
-    PREFIX = './images/'
+    PREFIX = './svgressource/images/'
     
     def query_index(par, val):
         return parameters[par]['value-index'](val)
     def query_image(par, ind):
+        if parameters[par]['images'][ind] is None:
+            return None
+        
         return (
             PREFIX + parameters[par]['images'][ind],
             parameters[par]['image-complete'][ind]

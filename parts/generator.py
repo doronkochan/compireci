@@ -313,7 +313,7 @@ def create_arrow_node(start, end):
     
 def text_size(text, font_size):
     from PIL import ImageFont
-    font = ImageFont.truetype("Simple Kind Of Girl.ttf", font_size)
+    font = ImageFont.truetype("./svgressource/Simple Kind Of Girl.ttf", font_size)
     size = font.getsize(text)
     return size
 
@@ -322,9 +322,9 @@ def image_size(img_path):
     img = Image.open(img_path)
     return img.size
 
-if __name__ == "__main__":
+def generate_svg(filename):
     from parser import parse
-    prog = open(sys.argv[1]).read()
+    prog = open(filename).read()
     ast = parse(prog)
     
     AST.Node.dwg = svgwrite.Drawing('test.svg')
@@ -332,8 +332,11 @@ if __name__ == "__main__":
     AST.Node.pos_y = 20
     AST.Node.outer_h = 0
     AST.Node.outer_w = 0
-    AST.Node.dwg.add_stylesheet("style.css", "compireci stylesheet")
+    AST.Node.dwg.add_stylesheet("./svgressource/style.css", "compireci stylesheet")
     
     AST.Node.dwg.add(ast.generate())
     AST.Node.dwg.save()
+
+if __name__ == "__main__":
+    generate_svg(sys.argv[1])
 

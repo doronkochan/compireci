@@ -47,13 +47,16 @@ def t_error(t):
 
 lex.lex()
 
-if __name__ == "__main__":
-	import sys
-	prog = open(sys.argv[1]).read()
-
-	lex.input(prog)
-
-	while 1:
+def analyse_lex(filename):
+    prog = open(filename).read()
+    
+    lex.input(prog)
+    
+    while 1:
 		tok = lex.token()
 		if not tok: break
 		print ("line %d: %s(%s)" % (tok.lineno, tok.type, tok.value))
+
+if __name__ == "__main__":
+	import sys
+	analyse_lex(sys.argv[1])

@@ -1,3 +1,4 @@
+import sys
 import AST
 from lex import time_units
 from AST import addToClass
@@ -158,16 +159,20 @@ def semantic(prog): # Useful ??
     ast = parse(prog)
     ast.verify()
 
-if __name__ == '__main__':
+def analyse_sem(filename):
     from parser import parse
-    import sys
-    prog = open(sys.argv[1]).read()
+    prog = open(filename).read()
 
     ast = parse(prog)
 
     ast.verify()
     if (semantically_correct is True):
         print('Semantics OK!')
-        #SVG GEN now?
+        return True
     else:
         print('Semantics Error!')
+    
+    return False
+
+if __name__ == '__main__':
+    analyse_sem(sys.argv[1])
