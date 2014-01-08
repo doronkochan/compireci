@@ -6,6 +6,10 @@ _bol {
 	140g sucre
 	100g farine
 	3cas levure
+	4cas levure
+	5cas levure
+	6cas levure
+	7cas levure
 } melanger(type=Fouet, duree=10m)
 
 _casserole {
