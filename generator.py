@@ -136,7 +136,7 @@ def generate(self):
     par_y = Node.pos_y
     
     top_bottom = 0
-    left_right = 20
+    left_right = 0
     font_height = 20
     
     group = Node.dwg.g()
@@ -308,7 +308,7 @@ def create_arrow_node(start, end):
     line.set_markers(marker)
     line['marker-end'] = marker.get_funciri()
     
-    size = ( abs(end[0] - start[0]), abs(end[1] - start[1]) ) 
+    size = ( abs(end[0] - start[0])+5, abs(end[1] - start[1]) ) 
     return (line, size)
     
 def text_size(text, font_size):
