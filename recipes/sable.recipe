@@ -1,0 +1,18 @@
+_bol1 {
+	150g farine
+	75g sucre
+	75g beurre
+	1pincee sel
+} melanger(type=Fouet, duree=10m)
+
+_pate {
+	_bol1
+} petrir(duree=5m)
+
+_sables {
+	_pate
+} decouper(morceaux=10)
+
+_final {
+	_sables
+} cuire (type=Four, temperature=200, duree=10m, conteneur=Moule)

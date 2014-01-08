@@ -1,0 +1,16 @@
+_bol {
+	1cas farine
+	250ml lait
+	2 oeufs
+	200g gruyererape
+	1pincee sel
+	1pincee poivre
+} melanger(type=Main)
+
+_moules {
+	_bol
+} repartir()
+
+_final {
+	_moules
+} cuire(type=Four, temperature=230)

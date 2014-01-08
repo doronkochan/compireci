@@ -1,0 +1,15 @@
+_bol {
+	4 oeufs
+	140g sucre
+    100g farine
+    4cas levure
+} melanger(type=Fouet, duree=10m)
+
+casserole {
+	100g test
+} cuire(type=BainMarie)
+
+moule {
+	_bol
+	_casserole
+} cuire()

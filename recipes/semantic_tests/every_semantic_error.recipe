@@ -1,0 +1,18 @@
+_bol {
+	4 oeufs
+	140g sucre
+	100g farine
+	3cas levure
+	4 oeufs
+	140g sucre
+	100g farine
+} melanger(type=Martinet, duree=10m,duree=10m, test=100)
+
+_casserole {
+	_casserole
+} melanger(type=Fouet)
+
+_moule {
+	_bol
+	_casserole
+} cuire(type=Four)
