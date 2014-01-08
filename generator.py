@@ -1,9 +1,10 @@
 import sys
 import AST
+from random import randrange
+import colorsys
 from AST import addToClass, Node
 from semantic_rules import parameter_image
 import svgwrite
-
 
 @addToClass(AST.InstructionsNode)
 def generate(self):
@@ -216,13 +217,51 @@ def generate(self, method):
     
     return group
 
-def create_text_node(txt, font_height, pos_x, pos_y):
+@addToClass(AST.TokenNode)
+def generate(self):
+    top_bottom = 5
+    left_right = 10
+    font_height = 20
+    
+    txt = self.tok
+    color = var_color(txt)
+    print("var color: %s" % color)
+    (txt_node, txt_size) = create_text_node(
+        txt,
+        font_height,
+        Node.pos_x + left_right,
+        Node.pos_y + top_bottom,
+        color=color
+    )
+    
+    Node.outer_w = txt_size[0] + 2 * left_right
+    Node.outer_h = txt_size[1] + 2 * top_bottom
+    
+    return txt_node
+
+def var_color(var):
+    if var not in var_color.colors:
+        (h, l, s) = (randrange(360), randrange(50), randrange(100))
+        (h, l, s) = (float(h)/360, float(l)/100, float(s)/100)
+        (r, g, b) = colorsys.hls_to_rgb(h, l, s)
+        (r, g, b) = (r*255, g*255, b*255)
+        hex_color = '#%02x%02x%02x' % (r, g, b)
+        var_color.colors[var] = hex_color
+    return var_color.colors[var]
+    
+var_color.colors = {}
+
+def create_text_node(txt, font_height, pos_x, pos_y, color=None):
     size = text_size(txt, font_height)
     node = Node.dwg.text(
         txt,
         insert=(pos_x, pos_y+font_height),
         font_size='%spx' % font_height
     )
+    
+    if color!=None:
+        node.stroke(color)
+        
     return (node, size)
 
 def create_img_node(img, pos_x, pos_y):
@@ -233,25 +272,6 @@ def create_img_node(img, pos_x, pos_y):
         size=size
     )
     return (node, size)
-
-@addToClass(AST.TokenNode)
-def generate(self):
-    top_bottom = 5
-    left_right = 10
-    font_height = 20
-    
-    txt = self.tok
-    (txt_node, txt_size) = create_text_node(
-        txt,
-        font_height,
-        Node.pos_x + left_right,
-        Node.pos_y + top_bottom
-    )
-    
-    Node.outer_w = txt_size[0] + 2 * left_right
-    Node.outer_h = txt_size[1] + 2 * top_bottom
-    
-    return txt_node
     
 def text_size(text, font_size):
     from PIL import ImageFont
