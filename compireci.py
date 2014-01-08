@@ -23,7 +23,7 @@ def usage():
     print( "                      syn   executes the analyse syntaxic (level 2)" )
     print( "                      sem   executes the analyse semantic (level 3)" )
     print( "                      gen   generates the svg image       (level 4)" )
-    print( "          each time the levels below are executed as well" )
+    print( "          each time the levels below are executed as well." )
     print( "")
     print( "   -r VALUE, --recipe=VALUE     recipi file name ")
     print("")
@@ -78,9 +78,12 @@ if __name__ == "__main__":
     if mode == 'lex':
         analyse_lex(recipe)
     elif mode == 'syn':
-        analyse_syn(recipe, astPDF, astOUT)
+        ast = analyse_syn(recipe, astPDF, astOUT)
     elif mode == 'sem':
-        analyse_sem(recipe)
+        ast = analyse_syn(recipe, astPDF, astOUT)
+        if ast is not None:
+            analyse_sem(ast)
     elif mode == 'gen':
-        if analyse_sem(recipe):
-            generate_svg(recipe)
+        ast = analyse_syn(recipe, astPDF, astOUT)
+        if ast is not None and analyse_sem(ast):
+            generate_svg(ast)

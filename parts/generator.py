@@ -194,7 +194,9 @@ def generate(self, method):
         widths.append(Node.outer_w)
     
     Node.outer_h = Node.pos_y - par_y
-    Node.outer_w = max(widths)
+    Node.outer_w = 0
+    if len(widths)> 0:
+        Node.outer_w = max(widths)
     
     Node.pos_y = par_y
     return group
@@ -322,10 +324,7 @@ def image_size(img_path):
     img = Image.open(img_path)
     return img.size
 
-def generate_svg(filename):
-    from parser import parse
-    prog = open(filename).read()
-    ast = parse(prog)
+def generate_svg(ast):
     
     AST.Node.dwg = svgwrite.Drawing('test.svg')
     AST.Node.pos_x = 20

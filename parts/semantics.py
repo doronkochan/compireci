@@ -159,14 +159,10 @@ def semantic(prog): # Useful ??
     ast = parse(prog)
     ast.verify()
 
-def analyse_sem(filename):
-    from parser import parse
-    prog = open(filename).read()
-
-    ast = parse(prog)
-
-    ast.verify()
-    if (semantically_correct is True):
+def analyse_sem(ast):
+    ast.verify() 
+    if semantically_correct is True:
+        
         print('Semantics OK!')
         return True
     else:

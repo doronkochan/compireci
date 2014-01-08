@@ -1,6 +1,8 @@
 import ply.lex as lex
 from ply.lex import TOKEN
 
+errorOccured = False
+
 reserved_words = (
 	#actions?
 )
@@ -43,6 +45,7 @@ def t_newline(t):
 
 def t_error(t):
 	print ("Illegal character '%s'" % repr(t.value[0]))
+	errorOccured = True
 	t.lexer.skip(1)
 
 lex.lex()
@@ -56,6 +59,8 @@ def analyse_lex(filename):
 		tok = lex.token()
 		if not tok: break
 		print ("line %d: %s(%s)" % (tok.lineno, tok.type, tok.value))
+    
+    return not errorOccured
 
 if __name__ == "__main__":
 	import sys

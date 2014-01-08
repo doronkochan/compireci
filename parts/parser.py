@@ -62,35 +62,34 @@ def p_parameters(p):
         p[0] = AST.MethodParametersNode()
 
 def p_error(p):
+    p_error.error = True
     if p:
         print ("Syntax error in line %d" % p.lineno)
-        yacc.errok()
     else:
         print ("Syntax error: unexpected end of file!")
-
-def parse(program):
-    return yacc.parse(program)
-
+    yacc.restart()
+    
+p_error.error = False
 yacc.yacc(outputdir='generated')
 
 def analyse_syn(filename, treePdf, treeOut):
     prog = open(filename).read()
-    result = yacc.parse(prog)
+    ast = yacc.parse(prog)
 
-    if result:
+    if ast and not p_error.error:
         if treeOut:
-            print (result)
+            print (ast)
         if treePdf:
             import os
-            graph = result.makegraphicaltree()
+            graph = ast.makegraphicaltree()
             name = os.path.splitext(sys.argv[1])[0]+'-ast.pdf'
             graph.write_pdf(name) 
             print ("wrote ast to %s" % name)
-        return True
+        return ast
     else:
-        print ("Parsing returned no result!")
+        print("[Error] Parsing returned invalid result!")
     
-    return False
+    return None
 
 if __name__ == "__main__":
     analyse_syn(sys.argv[1], True, True)
