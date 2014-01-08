@@ -255,7 +255,7 @@ def generate(self):
     
 def text_size(text, font_size):
     from PIL import ImageFont
-    font = ImageFont.truetype("MANDINGO.TTF", font_size)
+    font = ImageFont.truetype("Simple Kind Of Girl.ttf", font_size)
     size = font.getsize(text)
     return size
 
