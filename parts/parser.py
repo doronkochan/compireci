@@ -82,7 +82,10 @@ def analyse_syn(filename, treePdf, treeOut):
         if treePdf:
             import os
             graph = ast.makegraphicaltree()
-            name = os.path.splitext(sys.argv[1])[0]+'-ast.pdf'
+            
+            name = os.path.split(filename)[1]
+            name = os.path.splitext(name)[0] +'-ast.pdf'
+            
             graph.write_pdf(name) 
             print ("wrote ast to %s" % name)
         return ast

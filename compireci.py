@@ -86,4 +86,4 @@ if __name__ == "__main__":
     elif mode == 'gen':
         ast = analyse_syn(recipe, astPDF, astOUT)
         if ast is not None and analyse_sem(ast):
-            generate_svg(ast)
+            generate_svg(ast, recipe)

@@ -324,9 +324,12 @@ def image_size(img_path):
     img = Image.open(img_path)
     return img.size
 
-def generate_svg(ast):
+def generate_svg(ast, filename):
+    import os
+    name = os.path.split(filename)[1]
+    name = os.path.splitext(name)[0] +'.svg'
     
-    AST.Node.dwg = svgwrite.Drawing('test.svg')
+    AST.Node.dwg = svgwrite.Drawing(name)
     AST.Node.pos_x = 20
     AST.Node.pos_y = 20
     AST.Node.outer_h = 0
@@ -335,6 +338,8 @@ def generate_svg(ast):
     
     AST.Node.dwg.add(ast.generate())
     AST.Node.dwg.save()
+    
+    print("written svg file: %s" % name)
 
 if __name__ == "__main__":
     generate_svg(sys.argv[1])
